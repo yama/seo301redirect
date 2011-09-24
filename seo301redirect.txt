@@ -1,0 +1,37 @@
+//<?php
+/**
+ * seo301redirect
+ * 
+ * Redirects old URL's to the new ones
+ *
+ * @category    plugin
+ * @version     0.0.1
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU Public License (GPL)
+ * @internal    @events OnPageNotFound
+ * @internal    @modx_category Navigation
+ * @author      Yama - http://kyms.jp / 2010/10/13
+ */
+
+/* $pages[old url] = new doc ID; */
+$pages['http://example.com/old1.html'] = 5;
+$pages['http://example.com/old2.html'] = 10;
+$pages['http://example.com/old3.html'] = 15;
+
+foreach( $pages as $k => $v )
+{
+	$k = str_replace(MODX_SITE_URL, '', $k);
+	$k = '/' . ltrim($k, '/');
+	if($_SERVER['REQUEST_URI'] == $k)
+	{
+		$url = $modx->makeUrl($v, '', '', 'full');
+		$modx->sendRedirect($url, 0, 'REDIRECT_HEADER', 'HTTP/1.1 301 Moved Permanently');
+		exit;
+	}
+}
+if(preg_match('@.+/[^/0-9]*([1-9][0-9]*)[^/]*$@', $_SERVER['REQUEST_URI'], $matches))
+{
+	$v = intval($matches[1]);
+	$url = $modx->makeUrl($v, '', '', 'full');
+	$modx->sendRedirect($url, 0, 'REDIRECT_HEADER', 'HTTP/1.1 301 Moved Permanently');
+	exit;
+}
